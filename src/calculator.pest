@@ -1,0 +1,27 @@
+// Reference: https://github.com/pest-parser/book/blob/master/examples/pest-calculator/src/calculator.pest
+
+// No whitespace allowed between digits
+integer = @{ ASCII_DIGIT+ }
+
+// Unary operators
+unary_op = _{ plus | minus }
+    plus = { "+" }
+	minus = { "-" }
+
+// Binary operators
+bin_op = _{ add | subtract | multiply | divide | modulo }
+    add = { "+" }
+    subtract = { "-" }
+    multiply = { "*" }
+    divide = { "/" }
+	modulo = { "%" }
+
+// Expression
+expr = { atom ~ (bin_op ~ atom)* }
+primary = _{ integer | "(" ~ expr ~ ")" }
+atom = _{ unary_op? ~ primary }
+
+// We can't have SOI and EOI on expr directly, because it is used recursively (e.g. with parentheses)
+equation = _{ SOI ~ expr ~ EOI }
+
+WHITESPACE = _{ " " | "\t" | "\n" }
