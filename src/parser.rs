@@ -1,8 +1,7 @@
 use lazy_static::lazy_static;
 use pest::iterators::Pairs;
 use pest::pratt_parser::PrattParser;
-use pest::{self, Parser};
-use std::io;
+use pest::{self, error::Error, Parser};
 
 #[derive(pest_derive::Parser)]
 #[grammar = "calculator.pest"]
@@ -87,18 +86,12 @@ pub fn parse_expr(pairs: Pairs<Rule>) -> Expr {
         .parse(pairs)
 }
 
-pub fn test(input: String) -> io::Result<()> {
+pub fn parse_str(input: &str) -> Result<Expr, Error<Rule>> {
     match CalculatorParser::parse(Rule::equation, &input) {
         Ok(mut pairs) => {
-            println!(
-                "Parsed: {:#?}",
-                // inner of expr
-                parse_expr(pairs.next().unwrap().into_inner())
-            );
+            let out = parse_expr(pairs.next().unwrap().into_inner());
+            Ok(out)
         }
-        Err(e) => {
-            eprintln!("Parse failed: {:?}", e);
-        }
+        Err(e) => Err(e),
     }
-    Ok(())
 }
